@@ -1,3 +1,8 @@
+import django
+import os
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.production")
+django.setup()
+
 from datetime import datetime, timedelta
 from interview.inventory.models import Inventory, InventoryLanguage, InventoryTag, InventoryType
 from interview.order.models import Order, OrderTag
