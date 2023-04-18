@@ -5,7 +5,12 @@ from rest_framework.views import APIView
 from interview.inventory.models import Inventory, InventoryLanguage, InventoryTag, InventoryType
 from interview.inventory.schemas import InventoryMetaData
 from interview.inventory.serializers import InventoryLanguageSerializer, InventorySerializer, InventoryTagSerializer, InventoryTypeSerializer
+from datetime import datetime
+import datetime as dt
 
+import logging
+logger = logging.getLogger(__name__)
+logging.getLogger().setLevel(logging.INFO)
 
 class InventoryListCreateView(APIView):
     queryset = Inventory.objects.all()
@@ -63,6 +68,28 @@ class InventoryRetrieveUpdateDestroyView(APIView):
     
     def get_queryset(self, **kwargs):
         return self.queryset.get(**kwargs)
+    
+    
+class InventoryListAfterDate(APIView):
+    queryset = Inventory.objects.all()
+    serializer_class = InventorySerializer
+    
+    def get(self, request: Request, *args, **kwargs) -> Response:
+        
+        try:
+            
+            # Inventory items created after this day will be shown 
+            start_date_1 = datetime.strptime(kwargs['min_date'],'%Y-%m-%d').date()
+            inventory = self.get_queryset(created_at__gte=start_date_1)
+            serializer = self.serializer_class(inventory, many= True)
+        
+            return Response(serializer.data, status=200)
+        
+        except Exception as e:
+            logging.info("******** Exception:",e)
+    
+    def get_queryset(self, **kwargs):
+        return self.queryset.filter(**kwargs)
 
 
 class InventoryTagListCreateView(APIView):
