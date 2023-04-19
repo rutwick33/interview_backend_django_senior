@@ -4,14 +4,22 @@ from rest_framework.views import APIView
 
 from interview.inventory.models import Inventory, InventoryLanguage, InventoryTag, InventoryType
 from interview.inventory.schemas import InventoryMetaData
-from interview.inventory.serializers import InventoryLanguageSerializer, InventorySerializer, \
-    InventoryTagSerializer, InventoryTypeSerializer, PaginatedInventorySerializer
+from interview.inventory.serializers import (
+    InventoryLanguageSerializer, 
+    InventorySerializer,
+    InventoryTagSerializer, 
+    InventoryTypeSerializer, 
+    PaginatedInventorySerializer
+)
+
+from rest_framework.pagination import LimitOffsetPagination
+
 from interview.inventory.pagination import CustomPagination
 
 class InventoryListCreateView(APIView):
     queryset = Inventory.objects.all()
-    serializer_class = InventorySerializer
-    pagination_class = CustomPagination
+    serializer_class = PaginatedInventorySerializer
+    pagination_class = LimitOffsetPagination
     
     def post(self, request: Request, *args, **kwargs) -> Response:
         try:
@@ -31,7 +39,6 @@ class InventoryListCreateView(APIView):
     def get(self, request: Request, *args, **kwargs) -> Response:
         
         try:
-            import pdb; pdb.set_trace()
             page = self.pagination_class.paginate_queryset(self.pagination_class, queryset=self.get_queryset(), request = request)
             if page is not None:
                 serializer = self.serializer_class(page, many=True)
